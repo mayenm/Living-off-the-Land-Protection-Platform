@@ -16,7 +16,7 @@ We take the security of OGT WatchTower seriously. If you have found a security v
 
 ### How to Report
 
-Please email us at **security@ogt-security.com** with the details of the vulnerability. We will verify the issue and get back to you within 48 hours.
+Please email us at **ogttamimi@gmail.com** with the details of the vulnerability. We will verify the issue and get back to you within 48 hours.
 
 ### What to Include
 

@@ -1,205 +1,232 @@
-import sys
 import os
-import ctypes
-import queue
+import sys
 import threading
-from tkinter import messagebox
+import queue
+import logging
+import json
 
-# Add current directory to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Ensure src is in path
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 
-from gui.main_window import MainWindow
-from core.process_monitor import ProcessMonitor
-from core.behavior_analyzer import BehaviorAnalyzer
-from core.protection_engine import ProtectionEngine
-from core.logger import SecurityLogger
+from core.telemetry.sysmon_monitor import SysmonMonitor
+from core.detection.engine import DetectionEngine
+from core.detection.yara_scanner import YaraScanner
+from core.intelligence.cloud_sentry import CloudSentry
 
-class WatchTowerApp:
-    def __init__(self):
-        # 0. Check Admin
-        if not self.is_admin():
-            self.request_admin()
-            sys.exit()
+# GUI
+from gui.app import App
 
-        # 1. Initialize Core Components
-        self.logger = SecurityLogger()
-        self.analyzer = BehaviorAnalyzer()
-        self.protection = ProtectionEngine()
-        
-        # Event Queue for Thread Safety
-        self.event_queue = queue.Queue()
-        
-        # Monitor
-        self.monitor = ProcessMonitor(event_callback=self.handle_process_event)
-        
-        # 2. Initialize GUI
-        self.window = MainWindow()
-        self.window.on_protection_toggle = self.on_protection_toggle
-        
-        # Inject references
-        self.window.panels["Logs"].set_logger(self.logger)
-        
-        # Stats tracking
-        self.stats = {
-            "monitored": 0,
-            "threats": 0,
-            "suspended": 0
-        }
-        
-        # 3. Start Update Loop
-        self.window.after(100, self.process_queue)
-        
-        # 4. Scan Existing Processes (So dashboard isn't empty)
-        print("Scanning identifying existing processes...")
-        initial_procs = self.monitor.get_running_lolbins()
-        for p in initial_procs:
-            self.process_logic(p)
-            
-        # 5. Start Monitoring
-        self.logger.log_error("Application Started")
-        try:
-            self.monitor.start_monitoring()
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to start monitoring: {e}")
-            self.logger.log_error(f"Startup Error: {e}")
+# Determine Base Path (Works for dev and PyInstaller)
+if getattr(sys, 'frozen', False):
+    # Running as a bundled executable
+    base_dir = os.path.dirname(sys.executable)
+else:
+    # Running from source
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    def is_admin(self):
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            return False
+# Logging
+log_dir = os.path.join(base_dir, "release", "logs")
+if not os.path.exists(log_dir):
+    try:
+        os.makedirs(log_dir)
+    except:
+        pass # Fallback or use temp
 
-    def request_admin(self):
-        ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, " ".join(sys.argv), None, 1
-        )
+log_file = os.path.join(log_dir, "watchtower.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
-    def on_protection_toggle(self, active):
-        # We might stop the monitor thread or just ignore events
-        # Usually, protection toggle implies whether we ACT on threats, 
-        # but we might still want to monitor/log.
-        # SOP says "Protection toggle button".
-        # I'll update the protection engine setting or just flag here.
-        # Ideally, we update ProtectionEngine config? Or just a flag in App?
-        # Let's assume it disables AUTOMATIC ACTIONS but still monitors.
-        pass 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # src/.. -> Project Root
 
-    def handle_process_event(self, process_info):
-        self.event_queue.put(process_info)
+    return os.path.join(base_path, "src", relative_path) if not getattr(sys, 'frozen', False) else os.path.join(base_path, relative_path)
 
-    def process_queue(self):
-        try:
-            while not self.event_queue.empty():
-                info = self.event_queue.get_nowait()
-                self.process_logic(info)
-        except queue.Empty:
-            pass
-        finally:
-            self.window.after(100, self.process_queue)
-
-    def process_logic(self, info):
-        self.stats["monitored"] += 1
-        
-        # Analyze
-        is_suspicious, threat_level, indicators = self.analyzer.is_suspicious(info)
-        
-        action_taken = "Monitored"
-        
-        if is_suspicious:
-            self.stats["threats"] += 1
-            info["behavior"] = ", ".join(indicators)
-            info["threat_level"] = threat_level
-            
-            # Protection Logic
-            if self.window.protection_active:
-                # Check settings (reloading or cached)
-                # Ideally, ProtectionEngine has the current config.
-                # We can reload settings periodically or on event.
-                # For simplicity, we assume ProtectionEngine has current cache 
-                # (SettingsPanel saves to disk, ProtectionEngine loads from disk in init. 
-                # We might need to refresh ProtectionEngine settings).
-                self.protection.load_settings() # Refresh settings
-                config = self.protection.whitelist # re-read whitelist
-                # And protection settings... ProtectionEngine needs to read "auto_suspend" etc.
-                # Actually ProtectionEngine in current implementation only handles Whitelist in settings.
-                # But settings.json has "protection" block.
-                # I should parse that block in ProtectionEngine or here.
-                # Let's update ProtectionEngine to load full settings or read main logic here.
-                
-                # Check whitelist
-                if self.protection.is_whitelisted(info.get("name")) or \
-                   self.protection.is_whitelisted(info.get("cmdline")): # Simple path check
-                    action_taken = "Whitelisted"
-                    threat_level = "Safe" # Override
-                else:
-                    # Check Auto Actions (Reading raw json or cached)
-                    # We'll read the file quickly or better, cache it.
-                    # reusing protection.load_settings logic for simplicity?
-                    # ProtectionEngine.load_settings reads the whole file.
-                    # I will add logic to read auto_suspend from file or assume defaults.
-                    
-                    with open(self.protection.config_file, 'r') as f:
-                        settings_data = json.load(f)
-                        prot_sets = settings_data.get("protection", {})
-                        
-                    if prot_sets.get("auto_suspend", False) and threat_level in ["medium", "high", "critical"]:
-                        success, search_msg = self.protection.suspend_process(info["pid"])
-                        if success:
-                            action_taken = "Suspended"
-                            self.stats["suspended"] += 1
-                        else:
-                            action_taken = f"Suspend Failed: {search_msg}"
-                            
-                    if prot_sets.get("auto_terminate", False) and threat_level in ["high", "critical"]:
-                         # Override suspend if terminate is on
-                        success, search_msg = self.protection.terminate_process(info["pid"])
-                        if success:
-                            action_taken = "Terminated"
-                            self.stats["suspended"] += 1 # Count as stopped
-                        else:
-                            action_taken = f"Terminate Failed: {search_msg}"
-            
-            # Log
-            self.logger.log_detection(info, threat_level)
-            if action_taken not in ["Monitored", "Whitelisted"]:
-                self.logger.log_action(info["pid"], action_taken, str(indicators))
-                
-        else:
-            info["behavior"] = "Normal"
-            info["threat_level"] = "Safe"
-
-        info["action"] = action_taken
-        
-        # Update GUI
-        self.window.panels["Live Monitoring"].add_process_row(info)
-
-    def update_dashboard_tick(self):
-        """ Independent loop to update stats like total process count """
-        try:
-            # Update Monitored Count (Total Running PIDs)
-            # Since we monitor everything now, this is accurate.
+def load_settings():
+    path = resource_path(os.path.join("config", "settings.json"))
+    if os.path.exists(path):
+        with open(path, 'r') as f:
             try:
-                import psutil
-                total_pids = len(psutil.pids())
-                self.stats["monitored"] = total_pids
+                return json.load(f)
             except:
                 pass
-                
-            self.window.panels["Dashboard"].update_stats(
-                monitored=self.stats["monitored"],
-                threats=self.stats["threats"],
-                suspended=self.stats["suspended"],
-                active=self.window.protection_active
-            )
-        except Exception:
-            pass
-        finally:
-            self.window.after(1000, self.update_dashboard_tick)
+    return {"api_keys": {}}
 
-    def run(self):
-        self.update_dashboard_tick() # Start the loop
-        self.window.mainloop()
+def is_admin():
+    try:
+        import ctypes
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+class EngineManager:
+    def __init__(self, ui_queue, settings):
+        self.ui_queue = ui_queue
+        self.settings = settings
+        
+        rules_dir = resource_path(os.path.join("config", "rules"))
+        yara_dir = resource_path(os.path.join("config", "yara"))
+        
+        self.sigma_engine = DetectionEngine(rules_dir)
+        self.yara_engine = YaraScanner(yara_dir)
+        self.cloud_sentry = CloudSentry(settings.get("api_keys"))
+        
+        self.monitor = SysmonMonitor(event_callback=self.event_callback, 
+                                     error_callback=self.error_callback)
+
+    def event_callback(self, process_event):
+        try:
+            # Send raw event to UI
+            self.ui_queue.put(("event", process_event.to_dict()))
+            
+            # --- Detection Pipeline ---
+            matches = self.sigma_engine.evaluate(process_event)
+            alerts = []
+            
+            # 1. Sigma Rules
+            for rule in matches:
+                alerts.append({
+                    "title": f"SIGMA: {rule.title}",
+                    "level": rule.level,
+                    "process": process_event.image,
+                    "command": process_event.command_line,
+                    "pid": process_event.process_id
+                })
+
+            # 2. YARA (Only for creations)
+            if process_event.event_id == "1" and process_event.image and os.path.exists(process_event.image):
+                yara_matches = self.yara_engine.scan_file(process_event.image)
+                for match in yara_matches:
+                    alerts.append({
+                        "title": f"YARA: {match}",
+                        "level": "high",
+                        "process": process_event.image,
+                        "command": "Static Hash/String Match Detected",
+                        "pid": process_event.process_id
+                    })
+
+            # 3. Cloud IP Reputation (Event ID 3)
+            if process_event.event_id == "3" and process_event.dest_ip:
+                def ip_cb(result):
+                    if result.get("abuse_score", 0) > 50:
+                         self.ui_queue.put(("alert", {
+                             "title": "ABUSE: Malicious Connection",
+                             "level": "high",
+                             "process": process_event.image,
+                             "command": f"Target: {process_event.dest_ip} (Score: {result['abuse_score']})",
+                             "pid": process_event.process_id
+                         }))
+                self.cloud_sentry.check_ip(process_event.dest_ip, callback=ip_cb)
+
+            # 4. Cloud File Hash (Event ID 1 or 11)
+            file_path = process_event.image or process_event.target_file
+            if process_event.event_id in ["1", "11"] and file_path and os.path.exists(file_path):
+                def cloud_cb(result):
+                    if result.get("malicious_count", 0) > 3:
+                         self.ui_queue.put(("alert", {
+                             "title": "CLOUD: Known Malware",
+                             "level": "critical",
+                             "process": file_path,
+                             "command": f"VT Detections: {result['malicious_count']}",
+                             "pid": process_event.process_id
+                         }))
+                self.cloud_sentry.check_file_hash(file_path, callback=cloud_cb)
+
+            # --- Push Alerts to UI ---
+            for alert in alerts:
+                self.ui_queue.put(("alert", alert))
+
+            # --- Automated Response Logic ---
+            critical_threat = any(a['level'] in ['high', 'critical'] for a in alerts)
+            if critical_threat:
+                from core.response.forensics import ForensicsCollector
+                from core.response.containment import ContainmentUnit
+                
+                containment = ContainmentUnit()
+                collector = ForensicsCollector(evidence_dir=os.path.join(base_dir, "release", "evidence"))
+
+                # Snapshot
+                try:
+                    if process_event.process_id:
+                        collector.capture_snapshot(int(process_event.process_id), process_event.image)
+                except: pass
+                
+                # Containment
+                try:
+                    if process_event.process_id:
+                        containment.suspend_process(int(process_event.process_id))
+                except: pass
+                
+                # Extreme Isolation
+                if any(a['level'] == 'critical' for a in alerts):
+                    containment.isolate_host()
+
+        except Exception as e:
+            logging.error(f"Engine Error: {e}")
+
+    def error_callback(self, error_msg):
+        self.ui_queue.put(("error", error_msg))
+
+    def start(self, app_instance):
+        # --- Baseline Scan ---
+        try:
+            from core.telemetry.process_enumerator import ProcessEnumerator
+            from core.telemetry.sysmon_monitor import ProcessEvent
+            
+            enumerator = ProcessEnumerator()
+            current_procs = enumerator.get_current_processes()
+            logging.info(f"Populating dashboard with {len(current_procs)} existing processes.")
+            
+            # Update app state
+            app_instance.dashboard_view.active_processes = len(current_procs)
+            # Ensure UI reflects this immediately even if queue is empty
+            app_instance.dashboard_view.update_stats()
+            
+            for proc_data in current_procs:
+                # Use class callback
+                self.event_callback(ProcessEvent(proc_data, event_id="1"))
+        except Exception as e:
+            logging.error(f"Baseline Scan Failed: {e}")
+
+        # --- Live Monitoring ---
+        self.monitor.start_monitoring()
+        logging.info("Engine Background Thread Started")
+
+def main():
+    if not is_admin():
+        # Note: In production build, UAC-admin manifest should handle this, 
+        # but kept for source/manual execution.
+        pass
+
+    ui_queue = queue.Queue()
+    settings = load_settings()
+    
+    # Initialize Engine Manager
+    engine = EngineManager(ui_queue, settings)
+    
+    # Launch GUI
+    # Passing engine.start directly as the callback
+    app = App(ui_queue, start_engine_callback=engine.start)
+    
+    # Initial Admin Warning (if needed)
+    if not is_admin():
+        ui_queue.put(("error", "CRITICAL: Not Running as Administrator. Monitoring will be disabled."))
+
+    app.mainloop()
+    
+    # Cleanup
+    engine.monitor.stop_monitoring()
+    sys.exit()
 
 if __name__ == "__main__":
-    app = WatchTowerApp()
-    app.run()
+    main()

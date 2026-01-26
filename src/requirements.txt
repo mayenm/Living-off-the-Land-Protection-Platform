@@ -1,5 +1,9 @@
-customtkinter>=5.2.0
-psutil>=5.9.0
-wmi>=1.5.1
-pywin32>=305
-pyinstaller>=5.0
+psutil
+wmi
+pywin32
+customtkinter
+packaging
+pillow
+yara-python
+requests
+pyyaml

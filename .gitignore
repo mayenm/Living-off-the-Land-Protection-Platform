@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+build/
+dist/
+*.spec
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+desktop.ini
+Thumbs.db
+
+# Project Specific
+src/build_artifacts/
+src/dist_artifacts/
+release/evidence/*
+release/logs/*
+!release/evidence/.gitkeep
+!release/logs/.gitkeep

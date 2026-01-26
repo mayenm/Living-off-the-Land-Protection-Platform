@@ -1,4 +1,106 @@
-# 🛡️ OGT WatchTower
+# 🛡️ OGT WatchTower v1.2 - Professional Edition
+
+**Advanced Behavioral Protection Platform**
+
+> "Watching What Others Miss" - Kernel-level visibility to detect and prevent Living-off-the-Land (LOLBin) attacks.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)](https://www.microsoft.com/windows)
+[![Status](https://img.shields.io/badge/status-active-success.svg)
+
+## 🚀 What's New in v1.2?
+
+Version 1.2 represents a complete architectural overhaul, moving from a simple polling script to a **Professional Security Tool**:
+
+-   **Core Engine**: Transitioned to **Sysmon** (Event Tracing) for real-time kernel-level visibility.
+-   **Detection**: Now powered by **Sigma Rules**, the industry standard for detection logic.
+-   **Intelligence**: Integrated **VirusTotal** and **AbuseIPDB** for global threat reputation.
+-   **File Identity**: **YARA Integration** prevents malware from hiding by renaming files (e.g., `powershell.exe` -> `notepad.exe`).
+-   **Response**: Automated **Forensics** (Memory Dumping) and **Containment** (Process Suspension).
+-   **UI**: A brand new **Modern Command Center** built with CustomTkinter.
+
+## 📑 Table of Contents
+
+-   [Features](#-features)
+-   [Installation](#-installation)
+-   [Usage](#-usage)
+-   [Configuration](#-configuration)
+-   [Architecture](#-architecture)
+-   [Screenshots](#-screenshots)
+
+## ✨ Features
+
+### 🔍 Advanced Detection
+-   **Real-time Event Stats**: Monitors Process Creation, Network Connections, and File Events.
+-   **Sigma Rule Support**: Load thousands of community rules (`.yml`) instantly.
+-   **YARA Scanning**: verify binary identity on disk.
+
+### 🛡️ Automated Response
+-   **Instant Suspension**: Blocks high-risk processes immediately.
+-   **Forensic Snapshots**: Captures full memory dumps (`.dmp`) and metadata *before* the process dies.
+
+### 🌐 Threat Intelligence
+-   **Cloud Sentry**: Automatically checks hashes against VirusTotal.
+-   **IP Reputation**: Verifies network connections against AbuseIPDB.
+
+## 💿 Installation
+
+### Prerequisites
+-   **Windows 10/11** (64-bit)
+-   **Administrator Privileges** (Required for Sysmon/ETW)
+
+### Step 1: Install Sysmon
+Run the provided script to install and configure Sysmon:
+```powershell
+./src/setup/install_sysmon.ps1
+```
+
+### Step 2: Run WatchTower
+Double-click `OGT WatchTower_v1.2.exe` in the `release/` folder.
+
+## 🚀 Usage
+
+### The Command Center
+The new GUI provides a real-time view of your system's security posture:
+-   **Live Feed**: Watch every process and network event scroll by.
+-   **Alerts**: High-priority threats appear in red with detailed context.
+-   **Dashboard**: Track total events and threat counts.
+
+### Testing Defenses
+1.  **Certutil Download**: Run `certutil -urlcache -split -f http://test.com` -> **Blocked!**
+2.  **Masquerading**: Rename `cmd.exe` to `calc.exe` and run it -> **Blocked by YARA!**
+
+## ⚙️ Configuration
+
+Edit `src/config/settings.json` to enable features and add API keys:
+```json
+{
+    "api_keys": {
+        "virustotal": "YOUR_KEY_HERE",
+        "abuseipdb": "YOUR_KEY_HERE"
+    }
+}
+```
+
+Add your custom detection rules to `src/config/rules/*.yml`.
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[Sysmon / ETW] -->|Events| B(Core Engine)
+    B --> C{Detection Pipeline}
+    C -->|Check| D[Sigma Rules]
+    C -->|Scan| E[YARA Engine]
+    C -->|Query| F[Cloud Intelligence]
+    C -->|Alert| G[Command Center UI]
+    C -->|High Threat| H[Response Module]
+    H --> I[Forensic Dump]
+    H --> J[Process Suspend]
+```
+
+## 📄 License
+MIT License - Copyright © 2026 OGT (Omar Al Tamimi).
 
 **Living-off-the-Land Protection Suite**
 
@@ -201,11 +303,11 @@ To prevent false positives:
 ## ⚙️ Configuration
 
 ### Settings File Location
-The application uses `config/settings.json` and `config/lolbins.json` to store your preferences.
+The application uses `src/config/settings.json` and `src/config/lolbins.json` to store your preferences.
 
 ### Customizing Detection Patterns
 
-Edit `config/lolbins.json` to modify detection rules or add new tools to monitor:
+Edit `src/config/lolbins.json` to modify detection rules or add new tools to monitor:
 ```json
 {
   "name": "certutil.exe",
@@ -244,7 +346,7 @@ Edit `config/lolbins.json` to modify detection rules or add new tools to monitor
 
 ## 🗺️ Roadmap
 
-### Version 1.0 (Current) ✅
+### Version 1.2 (Current) ✅
 - [x] Real-time LOLBin monitoring
 - [x] Global Process Monitoring
 - [x] Modern dark theme UI

